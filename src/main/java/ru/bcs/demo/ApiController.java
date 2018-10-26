@@ -9,12 +9,13 @@ import ru.bcs.demo.domain.repository.EmployeeRepository;
 import ru.bcs.demo.service.WorkplaceService;
 import ru.bcs.demo.web.EmployeeCreateRequest;
 import ru.bcs.demo.web.EmployeeCreatedResponse;
+import ru.bcs.demo.web.EmployeeNotFoundException;
 
 import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/employees")
+@RequestMapping
 public class ApiController {
 
     private final WorkplaceService workspaceService;
@@ -26,31 +27,40 @@ public class ApiController {
         this.employeeRepository = employeeRepository;
     }
 
-    @GetMapping
+    @GetMapping("/employees")
     public List<Employee> getAllEmployees() {
         return employeeRepository.findAll();
     }
 
-    @GetMapping(value = "departament/{departament}")
-    public List<Employee> getEmployeesByDepartamentName(@PathVariable("departament") DepartamentGroup departament) {
-        return employeeRepository.findAllByDepartamentName(departament);
+    @GetMapping("/employees/{id}")
+    public Employee getEmployeeById(@PathVariable String id) {
+        return employeeRepository.findById(id)
+                .orElseThrow(EmployeeNotFoundException::new);
     }
 
-    @PostMapping
+    @GetMapping(value = "/departments/{departament}/employees")
+    public List<Employee> getEmployeesByDepartamentName(@PathVariable DepartamentGroup departament) {
+        return employeeRepository.findAllByDepartament(departament);
+    }
+
+    @PostMapping("/employees")
     @ResponseStatus(HttpStatus.CREATED)
     public EmployeeCreatedResponse createEmployee(@Valid @RequestBody EmployeeCreateRequest employeeCreateRequest) {
         Employee createdEmployee = workspaceService.createEmployee(employeeRequestToEmployee(employeeCreateRequest));
-        return new EmployeeCreatedResponse(createdEmployee.getId(),createdEmployee.getName(), createdEmployee.getDepartament());
+        return new EmployeeCreatedResponse(createdEmployee.getId(), createdEmployee.getName(), createdEmployee.getDepartament());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/employees/{id}")
     public Employee modifyEmployeesById(@PathVariable("id") ObjectId id, @Valid @RequestBody Employee emps) {
         return employeeRepository.save(emps);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteEmployeesById(@PathVariable ObjectId id) {
-        employeeRepository.delete(employeeRepository.findById(id));
+    @DeleteMapping("/employees/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteEmployeeById(@PathVariable String id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(EmployeeNotFoundException::new);
+        employeeRepository.delete(employee);
     }
 
     private Employee employeeRequestToEmployee(EmployeeCreateRequest employeeCreateRequest) {
