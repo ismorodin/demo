@@ -1,7 +1,6 @@
 package ru.bcs.demo;
 
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.bcs.demo.domain.model.Employee;
@@ -16,12 +15,14 @@ import java.util.List;
 @RequestMapping(value = "/employee")
 public class ApiController {
 
-    @Autowired
-    private WorkplaceService workspaceService;
+    private final WorkplaceService workspaceService;
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository;
 
+    public ApiController(WorkplaceService workspaceService, EmployeeRepository employeeRepository) {
+        this.workspaceService = workspaceService;
+        this.employeeRepository = employeeRepository;
+    }
 
     @GetMapping()
     public List<Employee> getAllEmployees() {
@@ -36,7 +37,7 @@ public class ApiController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public Employee createEmployee(@Valid @RequestBody Employee emps) {
-        return workspaceService.createEmployees(employeeRepository, emps);
+        return workspaceService.createEmployee(emps);
     }
 
     @PutMapping("/{id}")

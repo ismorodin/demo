@@ -9,10 +9,16 @@ import ru.bcs.demo.service.WorkplaceService;
 @Service
 public class WorkplaceServiceImpl implements WorkplaceService {
 
+    private final EmployeeRepository repository;
+
+    public WorkplaceServiceImpl(EmployeeRepository repository) {
+        this.repository = repository;
+    }
+
     @Override
-    public Employee createEmployees(EmployeeRepository repository, Employee emps) {
-        emps.setId(ObjectId.get());
-        return repository.save(emps);
+    public Employee createEmployee(Employee employee) {
+        employee.setId(ObjectId.get());
+        return repository.save(employee);
     }
 
 }

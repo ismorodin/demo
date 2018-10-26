@@ -5,6 +5,6 @@ import ru.bcs.demo.domain.repository.EmployeeRepository;
 
 public interface WorkplaceService {
 
-    Employee createEmployees(EmployeeRepository repository, Employee emps);
+    Employee createEmployee(Employee employee);
 
 }
