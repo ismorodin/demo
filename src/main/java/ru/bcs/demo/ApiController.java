@@ -3,46 +3,50 @@ package ru.bcs.demo;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.bcs.demo.domain.model.Employees;
-import ru.bcs.demo.domain.repository.EmployeesRepository;
+import ru.bcs.demo.domain.model.Employee;
+import ru.bcs.demo.domain.model.enums.DepartamentGroup;
+import ru.bcs.demo.domain.repository.EmployeeRepository;
+import ru.bcs.demo.service.WorkplaceService;
 
 import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/employees")
+@RequestMapping(value = "/employee")
 public class ApiController {
+
     @Autowired
-    private EmployeesRepository repository;
+    private WorkplaceService workspaceService;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
 
     @GetMapping()
-    public ResponseEntity<List<Employees>> getAllEmployees() {
-        return ResponseEntity.ok(repository.findAll());
+    public List<Employee> getAllEmployees() {
+        return employeeRepository.findAll();
     }
 
-    @GetMapping(value = "departamentName/{departamentName}")
-    public Employees getEmployeesByDepartamentName(@PathVariable("departamentName") String departamentName) {
-        return repository.findByDepartamentName(departamentName);
+    @GetMapping(value = "departament/{departament}")
+    public List<Employee> getEmployeesByDepartamentName(@PathVariable("departament") DepartamentGroup departament) {
+        return employeeRepository.findAllByDepartamentName(departament);
     }
 
     @PostMapping()
-    public ResponseEntity<Employees> createEmployee(@Valid @RequestBody Employees emps) {
-        emps.set_id(ObjectId.get());
-        repository.save(emps);
-        return ResponseEntity.ok(emps);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Employee createEmployee(@Valid @RequestBody Employee emps) {
+        return workspaceService.createEmployees(employeeRepository, emps);
     }
 
     @PutMapping("/{id}")
-    public void modifyEmployeesById(@PathVariable("id") ObjectId id, @Valid @RequestBody Employees emps) {
-        emps.set_id(id);
-        repository.save(emps);
+    public Employee modifyEmployeesById(@PathVariable("id") ObjectId id, @Valid @RequestBody Employee emps) {
+        return employeeRepository.save(emps);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteEmployees(@PathVariable ObjectId id) {
-        repository.delete(repository.findBy_id(id));
+    public void deleteEmployeesById(@PathVariable ObjectId id) {
+        employeeRepository.delete(employeeRepository.findById(id));
     }
+
 }
