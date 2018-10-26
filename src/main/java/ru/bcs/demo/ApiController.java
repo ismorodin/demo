@@ -7,12 +7,14 @@ import ru.bcs.demo.domain.model.Employee;
 import ru.bcs.demo.domain.model.enums.DepartamentGroup;
 import ru.bcs.demo.domain.repository.EmployeeRepository;
 import ru.bcs.demo.service.WorkplaceService;
+import ru.bcs.demo.web.EmployeeCreateRequest;
+import ru.bcs.demo.web.EmployeeCreatedResponse;
 
 import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/employee")
+@RequestMapping(value = "/employees")
 public class ApiController {
 
     private final WorkplaceService workspaceService;
@@ -24,7 +26,7 @@ public class ApiController {
         this.employeeRepository = employeeRepository;
     }
 
-    @GetMapping()
+    @GetMapping
     public List<Employee> getAllEmployees() {
         return employeeRepository.findAll();
     }
@@ -34,10 +36,11 @@ public class ApiController {
         return employeeRepository.findAllByDepartamentName(departament);
     }
 
-    @PostMapping()
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Employee createEmployee(@Valid @RequestBody Employee emps) {
-        return workspaceService.createEmployee(emps);
+    public EmployeeCreatedResponse createEmployee(@Valid @RequestBody EmployeeCreateRequest employeeCreateRequest) {
+        Employee createdEmployee = workspaceService.createEmployee(employeeRequestToEmployee(employeeCreateRequest));
+        return new EmployeeCreatedResponse(createdEmployee.getId(),createdEmployee.getName(), createdEmployee.getDepartament());
     }
 
     @PutMapping("/{id}")
@@ -48,6 +51,13 @@ public class ApiController {
     @DeleteMapping("/{id}")
     public void deleteEmployeesById(@PathVariable ObjectId id) {
         employeeRepository.delete(employeeRepository.findById(id));
+    }
+
+    private Employee employeeRequestToEmployee(EmployeeCreateRequest employeeCreateRequest) {
+        Employee newEmployee = new Employee();
+        newEmployee.setDepartament(employeeCreateRequest.getDepartament());
+        newEmployee.setName(employeeCreateRequest.getName());
+        return newEmployee;
     }
 
 }

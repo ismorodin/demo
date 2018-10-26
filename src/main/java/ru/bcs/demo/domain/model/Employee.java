@@ -11,21 +11,7 @@ import ru.bcs.demo.domain.model.enums.DepartamentGroup;
 public class Employee {
 
     @Id
-    private ObjectId id;
+    private String id;
     private String name;
     private DepartamentGroup departament;
-
-    public Employee() {
-    }
-
-    public Employee(ObjectId id, String name, DepartamentGroup departament) {
-        this.id = id;
-        this.name = name;
-        this.departament = departament;
-    }
-
-    public String getId() {
-        return id.toHexString();
-    }
-
 }
